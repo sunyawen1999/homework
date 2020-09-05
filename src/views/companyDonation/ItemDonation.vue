@@ -138,12 +138,12 @@ export default {
       listQuery: {
         page: 1,
         size: 10,
-        deliveryTime :"",
-        dealTime:"",
-        searchCondition: "",
-        startTime: "",
-        endTime: ""
+        searchCondition: ""
       },
+      deliveryTime :"",
+      dealTime:"",
+      startTime: "",
+      endTime: "",
       list: [],
       total: 0,
       listLoading: false
