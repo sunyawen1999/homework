@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const loginRequest = base =>
+export const loginRequest = () =>
   axios.get("/api/users/me");
 
 export const loginRequestPost = payload =>

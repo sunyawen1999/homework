@@ -8,7 +8,7 @@
           ref="form"
           :model="form"
       >
-        <template v-if="operation != 'add'">
+        <template v-if="operation !== 'add'">
           <el-row :gutter="20">
             <el-col :span="8">
               <el-form-item
@@ -21,7 +21,12 @@
                 ></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+          </el-row>
+        </template>
+
+
+        <el-row :gutter="20">
+         <el-col :span="8">
               <el-form-item
                   label="单位名称"
                   prop="companyName"
@@ -29,39 +34,22 @@
                 <el-input
                     v-model="form.companyName"
                     placeholder="单位名称"
-                    disabled
                 ></el-input>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item
+                label="地址信息"
+                prop="deliveryAddressInfo"
+            >
+              <el-input
+                  v-model="form.deliveryAddressInfo"
+                  placeholder="地址信息"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-            <el-col :span="8">
-              <el-form-item
-                  label="地址id"
-                  prop="addressId"
-              >
-                <el-input
-                    v-model="form.addressId"
-                    placeholder="地址id"
-                    disabled
-                ></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item
-                  label="地址信息"
-                  prop="deliveryAddressInfo"
-              >
-                <el-input
-                    v-model="form.deliveryAddressInfo"
-                    placeholder="地址信息"
-                    disabled
-                ></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </template>
 
         <el-row :gutter="20">
           <el-col :span="8">
@@ -112,37 +100,19 @@
               </el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
-          <el-col :span="16">
+          <el-col :span="8">
             <el-form-item
-                label="备注"
-                prop="remark"
+                label="捐赠总数"
+                prop="donationSum"
             >
               <el-input
-                  type="textarea"
-                  placeholder="请输入内容"
-                  v-model="form.remark"
-                  maxlength="100"
-                  show-word-limit
-                  :autosize="{ minRows: 3}"
-              ></el-input>
+                  v-model="form.donationSum"
+                  placeholder="捐赠总数"
+              >
+              </el-input>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row
-            :gutter="20"
-            v-if="operation != 'add'"
-        >
-          <div class="info-box">
-            <span class="px-2">审核：{{ auditStatusList[form.auditStatus] }}</span>
-            <span class="px-2">审核人：{{ form.confirmInfo && form.confirmInfo.auditName ? form.confirmInfo.auditName: '暂无' }}</span>
-            <span class="px-2">审核账号：{{ form.confirmInfo && form.confirmInfo.auditorId ? form.confirmInfo.auditorId: '暂无' }}</span>
-            <span class="px-2">审核通过时间：{{ form.confirmInfo && form.confirmInfo.auditTime ? parseTime(form.confirmInfo.auditTime): '暂无' }}</span>
-          </div>
-        </el-row>
-
       </el-form>
       <el-button
           type="primary"
@@ -166,16 +136,21 @@
 </template>
 
 <script>
-import { EditWorker, GetWorkerById, AddWorker } from "@/api/fileManage";
-import { GetRegionList } from "@/api/region";
-import { GetStoreList } from "@/api/store";
+import { UpdateDonor, GetDonorList, AddDonor } from "@/api/donor";
+
 import { checkPhone, checkNum } from "@/utils/index";
 import { parseTime } from "@/utils/index";
 
 export default {
+
+
+
+
+
   data() {
     return {
       form: {
+        accountId:"",
         companyName: "",
         addressId: "",
         deliveryAddressInfo: "",
@@ -183,6 +158,7 @@ export default {
         LegalPersonTel: "",
         contact: "",
         contactTel: "",
+        donationSum:""
       },
       formatRole: "",
       formRules: {
@@ -206,33 +182,15 @@ export default {
           { required: true, message: "请输入联系人姓名", trigger: "blur" }
           // { validator: checkChinese, trigger: "blur" }
         ],
+        donationSum	: [
+          { required: true, message: "请输入捐赠总数", trigger: "blur" }
+          // { validator: checkChinese, trigger: "blur" }
+        ],
         contactTel: [
           { required: true, message: "请输入联系电话", trigger: "blur" },
           { validator: checkPhone, trigger: "blur" }
-        ],
-        donorStatus: [{ required: true, message: "是否为捐助者", trigger: "blur" }],
-        doneeStatus: [{ required: true, message: "是否为受捐者", trigger: "blur" }]},
+        ]},
       operation: "",
-      donorStatusList:[
-        {
-          label: "是，本单位是捐助者",
-          value: "isDonorCompany"
-        },
-        {
-          label: "否，本单位不是捐助者",
-          value: "isNotDonorCompany"
-        },
-      ],
-      doneeStatusList: [
-        {
-          label: "是，本单位是收捐者",
-          value: "isDonorCompany"
-        },
-        {
-          label: "否，本单位不是收捐者",
-          value: "isNotDonorCompany"
-        },
-      ],
       auditStatusList: {
         not_revienwed: "未审核",
         confirm_success: "通过",
@@ -243,10 +201,8 @@ export default {
   mounted() {
     this.operation = this.$route.query.operation;
     this.id = this.$route.query.id;
-    this.getStoreList();
 
     if (this.operation === "add") {
-      this.getRegionList();
     } else if (this.operation === "detail") {
       this.getData(this.id);
       this.formRules = {};
@@ -263,59 +219,25 @@ export default {
         path: "/donorInfoC"
       });
     },
-    getStoreList() {
-      GetStoreList().then(res => {
-        this.storeList = res.data.datas[0].content;
-      });
-    },
-    getRegionList() {
-      GetRegionList().then(res => {
-        this.regionList = res.data.datas[0].content;
-      });
-    },
+
     getData(id) {
       const that = this;
 
-      GetWorkerById(id).then(res => {
+      GetDonor(id).then(res => {
         that.form = res.data.datas[0];
-        that.formatRole = that.formatRoleType(that.form.roleType);
       });
-    },
-    formatRoleType(value) {
-      return value == "customer"
-          ? "用户"
-          : value == "expert"
-              ? "专家"
-              : value == "helper"
-                  ? "助老员"
-                  : value == "nurse"
-                      ? "护理员"
-                      : value == "shopManager"
-                          ? "店长"
-                          : value == "administration"
-                              ? "行政"
-                              : value == "hr"
-                                  ? "hr"
-                                  : value == "finance"
-                                      ? "财务"
-                                      : value == "outreach"
-                                          ? "外联"
-                                          : value == "after_sales"
-                                              ? "售后"
-                                              : value;
     },
     saveData() {
       let para = {
-        workerInfo: this.form,
+        companyInfo: this.form,
         loginName: "",
         password: "123456",
-        roleType: "nurse"
       };
-      para.loginName = this.form.workerTel;
+      para.loginName = this.form.contactTel;
 
       this.$refs.form.validate(valid => {
         if (valid) {
-          AddWorker(para).then(res => {
+          AddDonor(para).then(res => {
             if (res.data.code === "000") {
               this.$message({
                 message: "添加成功",
@@ -345,7 +267,7 @@ export default {
       };
       this.$refs.form.validate(valid => {
         if (valid) {
-          EditWorker(para).then(res => {
+          UpdateDonor(para).then(res => {
             if (res.data.code === "000") {
               this.$message({
                 message: "修改成功",

@@ -29,6 +29,25 @@
               @click="goToDetail('add')"
           >新增</el-button>
         </el-form-item>
+
+        <el-form-item>
+          <el-date-picker
+              v-model="listQuery.dealTime"
+              placeholder="交易日期"
+              value-format="yyyy-MM-dd"
+              @change="getList"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item>
+          <el-date-picker
+              v-model="listQuery.deliveryTime"
+              placeholder="发货日期"
+              value-format="yyyy-MM-dd"
+              @change="getList"
+          >
+          </el-date-picker>
+        </el-form-item>
       </el-form>
     </el-col>
     <!--列表-->
@@ -40,57 +59,39 @@
         style="width: 100%;"
     >
       <el-table-column
-          prop="accountId"
-          label="账号"
-          width="55"
-          align="center"
-      ></el-table-column>
-      <el-table-column
-          prop="userName"
-          label="用户名"
+          prop="itemName"
+          label="物品名称"
           width="160"
           align="center"
       ></el-table-column>
       <el-table-column
-          prop="personName"
-          label="姓名"
+          prop="itemNum"
+          label="物品数量"
+          width="100"
+          align="center"
+      ></el-table-column>
+      <el-table-column
+          prop="donorName"
+          label="捐赠者"
           width="160"
           align="center"
       ></el-table-column>
       <el-table-column
-          prop="DeliveryAddressInfo"
-          label="联系地址"
+          prop="doneeInfoC.companyName"
+          label="受捐公司"
           width="160"
           align="center"
       ></el-table-column>
       <el-table-column
-          prop="age"
-          label="年龄"
-          width="55"
+          prop="itemType"
+          label="物品类型"
+          width="160"
           align="center"
       >
       </el-table-column>
       <el-table-column
-          prop="phoneNum"
-          label="联系电话"
-          width="140"
-          align="center"
-      ></el-table-column>
-      <el-table-column
-          prop="donationSum"
-          label="捐赠总数"
-          width="140"
-          align="center"
-      ></el-table-column>
-      <el-table-column
-          prop="email"
-          label="联系邮箱"
-          width="140"
-          align="center"
-      ></el-table-column>
-      <el-table-column
-          prop="des"
-          label="备注"
+          prop="recordId"
+          label="捐赠记录"
           width="160"
           align="center"
       >
@@ -98,25 +99,14 @@
       <el-table-column
           label="操作"
           align="center"
-          min-width="240"
+          min-width="140"
       >
         <template slot-scope="scope">
           <el-button
               type="text"
               size="small"
-              @click="goToDetail('edit', scope.row.id)"
-          >编辑</el-button>
-          <el-button
-              type="text"
-              size="small"
               @click="goToDetail('detail', scope.row.id)"
           >详情</el-button>
-          <el-button
-              type="text"
-              size="small"
-              @click="handleDelete(scope.row.id)"
-              class="btn-text-red"
-          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -139,56 +129,54 @@
 </template>
 
 <script>
-import { GetDonorList, DeleteDonor } from "@/api/donor";
+import { GetDonationRecordList} from "@/api/donationrecord";
+import { parseTime } from "@/utils/index";
 
 export default {
   data() {
     return {
       listQuery: {
         page: 1,
+        size: 10,
+        deliveryTime :"",
+        dealTime:"",
         searchCondition: "",
-        size: 10
+        startTime: "",
+        endTime: ""
       },
       list: [],
       total: 0,
       listLoading: false
     };
   },
+  filters: {
+    formatTime(val) {
+      return val ? parseTime(val) : "";
+    }
+  },
   mounted() {
     this.getList();
-    console.log(error.response);
   },
   methods: {
-    goToDetail(operation, id) {
-      this.$router.push({
-        path: "/donorInfoP/donorDetailP",
-        query: { operation: operation, id: id }
-      });
-    },
-
     //获取列表
     getList() {
       const that = this;
+
       const para = {
         ...that.listQuery,
         page: that.listQuery.page - 1
       };
-     /* that.listLoading = true; */
-      GetDonorList(para).then(res => {
-        console.log(error.response);
-        console.log(res);
+      that.listLoading = true;
+      GetDonationRecordList(para).then(res => {
         that.total = res.data.datas[0].totalElements;
         that.list = res.data.datas[0].content;
         that.listLoading = false;
       });
     },
-    handleDelete(id) {
-      DeleteDonor(id).then(res => {
-        this.$message({
-          message: "删除成功",
-          type: "success"
-        });
-        this.getList();
+    goToDetail(operation, id) {
+      this.$router.push({
+        path: "/ItemDonation/ItemDonationDetail",
+        query: { operation: operation, id: id }
       });
     }
   }

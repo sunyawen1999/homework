@@ -1,5 +1,6 @@
 <template>
   <div>
-    test
+    roleInfo
   </div>
 </template>
+

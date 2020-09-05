@@ -83,7 +83,12 @@
           width="160"
           align="center"
       ></el-table-column>
-
+      <el-table-column
+          prop="donationSum"
+          label="捐赠总数"
+          width="140"
+          align="center"
+      ></el-table-column>
       <el-table-column
           prop="remark"
           label="备注"
@@ -137,7 +142,7 @@
                 size="small"
                 slot="reference"
                 class="btn-text-yellow mx-5"
-                v-if="scope.row.auditStatus == 'not_revienwed'"
+                v-if="scope.row.auditStatus === 'not_revienwed'"
             >审核</el-button>
           </el-popconfirm>
         </template>
@@ -162,17 +167,17 @@
 </template>
 
 <script>
-import { GetWorkerList, ApproveWorker, DeleteWorker } from "@/api/fileManage";
+import { GetDonorList, AddDonor, DeleteDonor } from "@/api/donor";
 
 export default {
   data() {
     return {
-      user: {},
       listQuery: {
         page: 1,
-        size: 10,
-        searchCondition: ""
+        searchCondition: "",
+        size: 10
       },
+      user: {},
       statusList: [
         {
           value: "1",
@@ -191,6 +196,7 @@ export default {
   mounted() {
     this.user = JSON.parse(sessionStorage.getItem("user"));
     this.getList();
+
   },
   methods: {
     goToDetail(operation, id) {
@@ -199,23 +205,20 @@ export default {
         query: { operation: operation, id: id }
       });
     },
-    goToRate() {
-      this.$router.push({
-        path: "/caregiverOrder"
-      });
-    },
     //获取列表
     getList() {
       const that = this;
-
       const para = {
         ...that.listQuery,
         page: that.listQuery.page - 1
       };
-      that.listLoading = true;
-      GetWorkerList(para).then(res => {
+      /*that.listLoading = true;*/
+      GetDonorList(para).then(res => {
+        console.log(error.response);
+        console.log(res);
         that.total = res.data.datas[0].totalElements;
         that.list = res.data.datas[0].content;
+        console.log(that.total);
         that.listLoading = false;
       });
     },
@@ -224,7 +227,8 @@ export default {
         approverId: this.user.id,
         auditStatus: bool
       };
-      ApproveWorker(id, para).then(res => {
+      AddDonor(id, para).then(res => {
+        console.log(res);
         if (res.data.code === "000") {
           this.$message({
             message: "审核成功",
@@ -240,7 +244,7 @@ export default {
       });
     },
     handleDelete(id) {
-      DeleteWorker(id).then(res => {
+      DeleteDonor(id).then(res => {
         this.$message({
           message: "删除成功",
           type: "success"

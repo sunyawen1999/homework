@@ -15,7 +15,7 @@
       >
         <template
             v-for="(item, index) in $router.options.routes"
-            v-if="!item.hidden && showItem(item.meta)"
+            v-if="!item.hidden&&showItem(item.meta)"
         >
           <el-submenu
               :index="index + ''"
@@ -30,11 +30,11 @@
                 v-for="child in item.children"
                 :index="child.path"
                 :key="child.path"
-                v-if="!child.hidden && showItem(child.meta)"
+                v-if="!child.hidden&& showItem(child.meta)"
             >{{ child.name }}</el-menu-item>
           </el-submenu>
           <el-menu-item
-              v-if="item.leaf && item.children.length > 0 && showItem(item.meta)"
+              v-if="item.leaf && item.children.length > 0&& showItem(item.meta)"
               :index="item.children[0].path"
               v-bind:key="index"
           >
@@ -62,13 +62,12 @@
               style="text-align:right"
               class="userinfo"
           >
-            <!-- <el-button
+            <el-button
               type="text"
               icon="el-icon-user"
               @click="userPage"
               v-show="userType !== 'super'"
-            >个人主页</el-button>-->
-            <!-- <el-button type="text" icon="el-icon-bell">消息中心</el-button> -->
+            >个人主页</el-button>
             <el-button
                 type="text"
                 icon="el-icon-switch-button"
@@ -141,19 +140,7 @@ export default {
     showItem(meta) {
       let show = false;
       let type = this.userTypeRoute;
-      if (meta && meta.role && meta.role.length > 0) {
-        if (meta.role.indexOf(type) > -1) {
-          show = true;
-          if (
-              meta.roleName &&
-              (this.isschool == "false" || this.isschool == false)
-          ) {
-            show = false;
-          }
-        }
-      } else {
-        show = true;
-      }
+      show = true;
       return show;
     },
     onSubmit() {
@@ -170,12 +157,11 @@ export default {
     },
     //退出登录
     logout: function() {
-      var _this = this;
+      const _this = this;
       this.$confirm("确认退出吗?", "提示", {
         //type: 'warning'
       })
           .then(() => {
-            sessionStorage.removeItem("user");
             _this.$router.push("/login");
           })
           .catch(() => {});
@@ -193,6 +179,7 @@ export default {
     },
     getLocation() {
       this.urlName = this.$route.query.urlValue;
+
     }
   },
   mounted() {
@@ -201,7 +188,7 @@ export default {
     let userTypeRoute;
     if (user) {
       user = JSON.parse(user);
-      this.sysUserName = user.realName || "";
+     /* this.sysUserName = user.realName || ""; */
       // this.sysUserAvatar = user.avatar || "";
       this.urlName ? (this.othUserName = "-" + this.urlName) : "";
     }
@@ -210,7 +197,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../styles/vars.scss";
+@import "../style/vars.scss";
 
 .el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item.is-active,
 .el-menu-item.is-active {
@@ -325,7 +312,7 @@ export default {
 
 
 <style scoped lang="scss">
-@import "../styles/vars.scss";
+@import "../style/vars.scss";
 
 .container {
   position: absolute;

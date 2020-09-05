@@ -64,12 +64,12 @@ const routes = [
         name: '单位捐赠情况查询',
         iconCls: 'el-icon-s-order',
         children: [
-            { path: '/caregiverOrder', component: () => import('../views/orderManage/caregiverOrder'), name: '捐赠情况' },
-            { path: '/caregiverOrder/caregiverDetail', component: () => import('../views/orderManage/caregiverDetail'), name: '捐赠详情', hidden: true },
-            { path: '/helperOrder', component: () => import('../views/orderManage/helperOrder'), name: '受捐赠情况' },
-            { path: '/helperOrder/helperDetail', component: () => import('../views/orderManage/helperDetail'), name: '受捐赠详情', hidden: true },
-            { path: '/orderComplaints', component: () => import('../views/orderManage/orderComplaints'), name: '捐赠物品情况' },
-            { path: '/orderComplaints/orderComplaintsDetail', component: () => import('../views/orderManage/orderComplaintsDetail'), name: '捐赠物品详情', hidden: true },
+            { path: '/companyAsDonor', component: () => import('../views/companyDonation/companyAsDonor'), name: '捐赠情况' },
+            { path: '/companyAsDonor/companyAsDonorDetail', component: () => import('../views/companyDonation/companyAsDonorDetail'), name: '捐赠详情', hidden: true },
+            { path: '/companyAsDonee', component: () => import('../views/companyDonation/companyAsDonee'), name: '受捐赠情况' },
+            { path: '/companyAsDonee/companyAsDoneeDetail', component: () => import('../views/companyDonation/companyAsDoneeDetail'), name: '受捐赠详情', hidden: true },
+            { path: '/ItemDonation', component: () => import('../views/companyDonation/ItemDonation'), name: '捐赠物品情况' },
+            { path: '/ItemDonation/ItemDonationDetail', component: () => import('../views/companyDonation/ItemDonationDetail'), name: '捐赠物品详情', hidden: true },
         ]
     },
     {
@@ -78,10 +78,7 @@ const routes = [
         name: '统计分析',
         iconCls: 'el-icon-pie-chart',
         children: [
-            { path: '/incomeStatistics', component: () => import('../views/statisticalAnalysis/incomeStatistics'), name: '收入统计' },
-            { path: '/personStatistics', component: () => import('../views/statisticalAnalysis/personStatistics'), name: '人事统计' },
-            { path: '/complaintStatistics', component: () => import('../views/statisticalAnalysis/complaintStatistics'), name: '投诉统计' },
-            { path: '/serveStatistics', component: () => import('../views/statisticalAnalysis/serveStatistics'), name: '服务统计' },
+            { path: '/incomeStatistics', component: () => import('../views/statisticalAnalysis/itemStatistics'), name: '捐赠物品统计' },
         ]
     },
     {
@@ -110,19 +107,25 @@ const routes = [
 ]
 
 const router = new VueRouter({
-    routes
+    routes,
 })
 
 router.beforeEach((to, from, next) => {
-    if (to.path == "/login") {
+    if (to.path === "/login") {
         sessionStorage.removeItem("user");
-    }
-    const user = JSON.parse(sessionStorage.getItem("user"));
-    if (!user && to.path != "/login") {
-        next({ path: "/login" });
+        }
+         const user = JSON.parse(sessionStorage.getItem("user"));
+         if (!user && to.path !== "/login") {
+             next({ path: "/login" });
     } else {
         next();
     }
 });
+/*
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+    return originalPush.call(this, location).catch(err => err)
+}
+*/
 
 export default router

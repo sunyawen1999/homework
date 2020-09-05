@@ -8,204 +8,147 @@
           ref="form"
           :model="form"
       >
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item
-                label="商家名称"
-                prop="businessName"
-            >
-              <el-input
-                  v-model="form.businessName"
-                  placeholder="商家名称"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item
-                label="法人姓名"
-                prop="legalPersonName"
-            >
-              <el-input
-                  v-model="form.legalPersonName"
-                  placeholder="法人姓名"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item
-                label="法人联系电话"
-                prop="legalPersonTel"
-            >
-              <el-input
-                  v-model="form.legalPersonTel"
-                  placeholder="法人联系电话"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
+        <template v-if="operation != 'add'">
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item
+                  label="账号"
+                  prop="accountId"
+              >
+                <el-input
+                    v-model="form.accountId"
+                    disabled
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item
+                  label="受捐总数"
+                  prop="donationSum"
+              >
+                <el-input
+                    v-model="form.totalNum"
+                    placeholder="受捐总数"
+                    disabled
+                ></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                  label="用户邮箱"
+                  prop="email"
+              >
+                <el-input
+                    v-model="form.email"
+                    placeholder="用户邮箱"
+                >
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item
+                  label="年龄"
+                  prop="personAge"
+              >
+                <el-input
+                    v-model="form.personAge"
+                    placeholder="年龄"
+                >
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </template>
+
+        <el-row :gutter="20">
+          <el-col :span="8">
             <el-form-item
-                label="法人身份证号码"
-                prop="legalPersonIdCard"
+                label="用户名"
+                prop="personName"
             >
               <el-input
-                  v-model="form.legalPersonIdCard"
-                  placeholder="法人身份证号码"
+                  v-model="form.personName"
+                  placeholder="用户名"
               ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item
-                label="身份证正面"
-                prop="idCardFront"
-            >
-              <el-upload
-                  class="avatar-uploader"
-                  action="/api/file"
-                  :show-file-list="false"
-                  :on-success="frontPhotoSuccess"
-                  v-model="photo.front"
-              >
-                <el-image
-                    v-if="photo.front"
-                    style="width: 178px; height: 178px"
-                    :src="photo.front"
-                    fit="fill"
-                ></el-image>
-                <i
-                    v-else
-                    class="el-icon-plus avatar-uploader-icon"
-                ></i>
-              </el-upload>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item
-                label="身份证反面"
-                prop="idCardBack"
-            >
-              <el-upload
-                  class="avatar-uploader"
-                  action="/api/file"
-                  :show-file-list="false"
-                  :on-success="backPhotoSuccess"
-                  v-model="photo.back"
-              >
-                <el-image
-                    v-if="photo.back"
-                    style="width: 178px; height: 178px"
-                    :src="photo.back"
-                    fit="fill"
-                ></el-image>
-                <i
-                    v-else
-                    class="el-icon-plus avatar-uploader-icon"
-                ></i>
-              </el-upload>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item
-                label="商家联系人"
-                prop="contact"
+                label="受捐总数"
+                prop="totalNum"
             >
               <el-input
-                  v-model="form.contact"
-                  placeholder="商家联系人"
-              >
-              </el-input>
+                  v-model="form.totalNum"
+                  placeholder="受捐总数"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item
-                label="联系人电话"
-                prop="contactTel"
+                label="联系电话"
+                prop="phoneNum"
             >
               <el-input
-                  v-model="form.contactTel"
-                  placeholder="联系人电话"
-              >
-              </el-input>
+                  v-model="form.phoneNum"
+                  placeholder="联系电话"
+              ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-form-item
-              label="商家地址"
-              prop="businessAddress"
+              label="家庭地址"
+              required
           >
+            <template v-if="operation == 'add'">
+              <el-col :span="6">
+                <el-form-item prop="customerProvince">
+                  <el-select
+                      v-model="form.customerProvince"
+                      placeholder="省"
+                      @change="getCityList"
+                  >
+                    <el-option
+                        v-for="item in provinceList"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.name"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="6">
+                <el-form-item prop="customerCity">
+                  <el-select
+                      v-model="form.customerCity"
+                      placeholder="市"
+                  >
+
+                    <el-option
+                        v-for="item in cityList"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.name"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </template>
+
             <el-col :span="12">
-              <el-form-item prop="businessAddress">
+              <el-form-item prop="deliveryAddressInfo">
                 <el-input
-                    v-model="form.businessAddress"
-                    placeholder="商家地址"
+                    v-model="form.deliveryAddressInfo"
+                    placeholder="详细地址"
                 >
                 </el-input>
               </el-form-item>
             </el-col>
           </el-form-item>
         </el-row>
-        <el-row>
-          <el-form-item
-              label="经营类别"
-              prop="productClassId"
-          >
-            <el-radio-group v-model="form.productClassId">
-              <el-radio
-                  v-for="item in productClassList"
-                  :key="item.id"
-                  :label="item.id"
-              >
-                {{ item.className }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item
-                label="经营执照"
-                prop="businessLicense"
-            >
-              <el-upload
-                  class="avatar-uploader"
-                  action="/api/file"
-                  :show-file-list="false"
-                  :on-success="businessLicenseSuccess"
-                  v-model="photo.license"
-              >
-                <el-image
-                    v-if="photo.license"
-                    style="width: 178px; height: 178px"
-                    :src="photo.license"
-                    fit="fill"
-                ></el-image>
-                <i
-                    v-else
-                    class="el-icon-plus avatar-uploader-icon"
-                ></i>
-              </el-upload>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row
-            :gutter="20"
-            v-if="operation != 'add'"
-        >
-          <div class="info-box">
-            <span class="px-2">审核：{{ auditStatusList[form.auditStatus] }}</span>
-            <span class="px-2">审核人：{{ form.confirmInfo && form.confirmInfo.auditName ? form.confirmInfo.auditName: '暂无' }}</span>
-            <span class="px-2">审核账号：{{ form.confirmInfo && form.confirmInfo.auditorId ? form.confirmInfo.auditorId: '暂无' }}</span>
-            <span class="px-2">审核通过时间：{{ form.confirmInfo && form.confirmInfo.auditTime ? parseTime(form.confirmInfo.auditTime): '暂无' }}</span>
-          </div>
-        </el-row>
-
       </el-form>
       <el-button
           type="primary"
@@ -229,83 +172,71 @@
 </template>
 
 <script>
-import { AddBusiness, EditBusiness, GetBusinessById } from "@/api/business";
+import { UpdateRecipient, GetRecipientList, AddRecipient } from "@/api/recipient";
 import { checkPhone, checkNum } from "@/utils/index";
-import { GetProducClassList } from "@/api/class";
-import globalVar from "@/utils/globalVar.js";
+const {
+  data,
+  province,
+  city,
+  area,
+  town
+} = require("province-city-china/data");
 
 export default {
   data() {
     return {
       form: {
-        businessAddress: "",
-        businessLicense: "",
-        businessName: "",
-        contact: "",
-        contactTel: "",
-        idCardBack: "",
-        idCardFront: "",
-        legalPersonIdCard: "",
-        legalPersonName: "",
-        legalPersonTel: "",
-        productClassId: ""
-      },
-      photo: {
-        front: "",
-        back: "",
-        license: ""
+        personName: "",
+        genderType: "",
+        addressID: "",
+        deliveryAddressInfo: "",
+        personAge: "",
+        phoneNum: "",
+        totalNum: "",
+        email: "",
+        customerProvince: "",
+        customerCity: ""
       },
       formRules: {
-        businessName: [
-          { required: true, message: "请输入商家名称", trigger: "blur" }
+        personName: [
+          { required: true, message: "请输入用户姓名", trigger: "blur" }
+          // { validator: checkChinese, trigger: "blur" }
         ],
-        legalPersonName: [
-          { required: true, message: "请输入法人姓名", trigger: "blur" }
+        genderType: [
+          { required: true, message: "请输入性别", trigger: "blur" }
         ],
-        legalPersonTel: [
-          { required: true, message: "请输入联系电话", trigger: "blur" },
-          { validator: checkPhone, trigger: "blur" }
+        deliveryAddressInfo: [
+          { required: true, message: "请输入联系地址", trigger: "blur" },
         ],
-        legalPersonIdCard: [
-          { required: true, message: "请上传身份证号码", trigger: "blur" },
-          { validator: checkNum, trigger: "blur" }
+        personAge: [
+          { required: true, message: "请输入年龄", trigger: "blur" }
         ],
-        idCardFront: [
-          { required: true, message: "请上传身份证正面", trigger: "blur" }
+        totalNum: [
+          { required: true, message: "请输入受捐总数", trigger: "blur" }
         ],
-        idCardBack: [
-          { required: true, message: "请输入身份证反面", trigger: "blur" }
+        phoneNum: [
+          { required: true, message: "请输入联系电话", trigger: "blur" }
         ],
-        contact: [
-          { required: true, message: "请输入商家联系人", trigger: "blur" }
+        email: [
+          { required: true, message: "请输入联系邮箱", trigger: "blur" }
         ],
-        contactTel: [
-          { required: true, message: "请输入联系人电话", trigger: "blur" },
-          { validator: checkPhone, trigger: "blur" }
+        customerProvince: [
+          { required: true, message: "请选择省份", trigger: "blur" }
         ],
-        businessAddress: [
-          { required: true, message: "请商家地址地址", trigger: "blur" }
-        ],
-        productClassId: [
-          { required: true, message: "请选择经营类别", trigger: "blur" }
-        ],
-        businessLicense: [
-          { required: true, message: "请上传经营执照", trigger: "blur" }
+        customerCity: [
+          { required: true, message: "请选择城市", trigger: "blur" }
         ]
       },
       operation: "",
-      productClassList: [],
-      auditStatusList: {
-        not_revienwed: "未审核",
-        confirm_success: "通过",
-        confirm_fail: "未通过"
-      }
+      provinceList: [],
+      cityList: []
     };
   },
   mounted() {
     this.operation = this.$route.query.operation;
     this.id = this.$route.query.id;
-    this.getProducClassList();
+    const provinces = require("province-city-china/dist/province.json");
+    this.provinceList = provinces;
 
     if (this.operation === "add") {
     } else if (this.operation === "detail") {
@@ -321,37 +252,46 @@ export default {
         path: "/doneeInfoP"
       });
     },
-    getProducClassList() {
-      GetProducClassList({ keyName: "" }).then(res => {
-        this.productClassList = res.data.datas[0].content;
-      });
+    getCityList() {
+      const that = this;
+      const province = this.provinceList.find(
+          item => item.name === that.form.customerProvince
+      );
+      if(this.form.customerProvince !== province) {
+        this.form.customerCity = "";
+      }
+      const cities = require("province-city-china/dist/city.json");
+      this.cityList = cities.filter(
+          item => item.province === province.province
+      );
+      if (!this.cityList.length) {
+        this.form.customerCity = province.name;
+      }
     },
     getData(id) {
       const that = this;
 
-      GetBusinessById(id).then(res => {
-        that.form = { ...res.data.datas[0] };
-        that.photo.front = globalVar.imgPath + that.form.idCardFront;
-        that.photo.back = globalVar.imgPath + that.form.idCardBack;
-        that.photo.license = globalVar.imgPath + that.form.businessLicense;
+      GetRecipientList(id).then(res => {
+        that.form = res.data.datas[0];
       });
     },
-    frontPhotoSuccess(res, file) {
-      this.photo.front = URL.createObjectURL(file.raw);
-      this.form.idCardFront = res.msg;
-    },
-    backPhotoSuccess(res, file) {
-      this.photo.back = URL.createObjectURL(file.raw);
-      this.form.idCardBack = res.msg;
-    },
-    businessLicenseSuccess(res, file) {
-      this.photo.license = URL.createObjectURL(file.raw);
-      this.form.businessLicense = res.msg;
-    },
     saveData() {
+      this.form.deliveryAddressInfo =
+          this.form.customerProvince +
+          this.form.customerCity +
+          this.form.deliveryAddressInfo;
+      this.form.roleType = "person";
+      let para = {
+        customerInfo: this.form,
+        loginName: "",
+        password: "123456",
+        roleType: "person"
+      };
+      para.loginName = this.form.personName;
+
       this.$refs.form.validate(valid => {
         if (valid) {
-          AddBusiness(this.form).then(res => {
+          AddRecipient(para).then(res => {
             if (res.data.code === "000") {
               this.$message({
                 message: "添加成功",
@@ -381,7 +321,7 @@ export default {
       };
       this.$refs.form.validate(valid => {
         if (valid) {
-          EditBusiness(para).then(res => {
+          UpdateRecipient(para).then(res => {
             if (res.data.code === "000") {
               this.$message({
                 message: "修改成功",

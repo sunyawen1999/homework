@@ -164,10 +164,6 @@ export function param2Obj(url) {
   );
 }
 
-export function isExternal(path) {
-  return /^(https?:|mailto:|tel:)/.test(path);
-}
-
 /**
  * 生成时间段
  * @param{Number} s 开始时间

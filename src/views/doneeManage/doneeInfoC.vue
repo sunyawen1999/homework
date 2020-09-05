@@ -1,20 +1,5 @@
 <template>
   <section>
-    <el-tabs
-        v-model="listQuery.productClassIds"
-        @tab-click="handleClick"
-    >
-      <el-tab-pane
-          label="全部"
-          name="0"
-      ></el-tab-pane>
-      <el-tab-pane
-          v-for="(item, index) in productClassList"
-          :key="index"
-          :label="item.className"
-          :name="item.id.toString()"
-      ></el-tab-pane>
-    </el-tabs>
     <!--工具条-->
     <el-col
         :span="24"
@@ -27,7 +12,7 @@
       >
         <el-form-item>
           <el-input
-              v-model="listQuery.keyName"
+              v-model="listQuery.searchCondition"
               placeholder="请输入关键字"
           >
             <el-button
@@ -98,24 +83,33 @@
           width="160"
           align="center"
       ></el-table-column>
-
+      <el-table-column
+          prop="totalNum"
+          label="受捐总数"
+          width="140"
+          align="center"
+      ></el-table-column>
       <el-table-column
           prop="remark"
           label="备注"
           width="160"
           align="center"
       >
-
-        <template slot-scope="scope">
-          {{ scope.row.productStatus | formatProductStatus }}
-        </template>
       </el-table-column>
-
-
+      <el-table-column
+          prop="auditStatus"
+          label="审核状态"
+          width="160"
+          align="center"
+      >
+        <template slot-scope="scope">{{
+            scope.row.auditStatus | formatAuditStatus
+          }}</template>
+      </el-table-column>
       <el-table-column
           label="操作"
           align="center"
-          min-width="200"
+          min-width="180"
       >
         <template slot-scope="scope">
           <el-button
@@ -131,25 +125,26 @@
           <el-button
               type="text"
               size="small"
-          >查看商家</el-button>
-          <el-button
-              type="text"
-              size="small"
-              @click="handelRelease(scope.row.id)"
-              class="btn-text-green"
-          >发布</el-button>
-          <el-button
-              type="text"
-              size="small"
-              @click="handleCancel(scope.row.id)"
-              class="btn-text-red"
-          >下架</el-button>
-          <el-button
-              type="text"
-              size="small"
               @click="handleDelete(scope.row.id)"
               class="btn-text-red"
           >删除</el-button>
+          <el-popconfirm
+              confirmButtonText='通过'
+              cancelButtonText='不通过'
+              icon="el-icon-info"
+              iconColor="red"
+              title="是否通过审核？"
+              @onConfirm="handleApprove(scope.row.id, 'confirm_success')"
+              @onCancel="handleApprove(scope.row.id, 'confirm_fail')"
+          >
+            <el-button
+                type="text"
+                size="small"
+                slot="reference"
+                class="btn-text-yellow mx-5"
+                v-if="scope.row.auditStatus == 'not_revienwed'"
+            >审核</el-button>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -172,93 +167,70 @@
 </template>
 
 <script>
-import {
-  GetProductList,
-  DeleteProduct,
-  CancelProduct,
-  ReleaseProduct
-} from "@/api/product";
-import { GetProducClassList } from "@/api/class";
-import globalVar from "@/utils/globalVar.js";
+import { GetRecipientList, AddRecipient, DeleteRecipient } from "@/api/recipient";
 
 export default {
   data() {
     return {
+      user: {},
       listQuery: {
         page: 1,
         size: 10,
-        keyName: "",
-        productClassIds: "0"
+        searchCondition: ""
       },
+      statusList: [
+        {
+          value: "1",
+          label: "标签1"
+        },
+        {
+          value: "2",
+          label: "标签2"
+        }
+      ],
       list: [],
       total: 0,
-      listLoading: false,
-      productClassList: []
+      listLoading: false
     };
   },
   mounted() {
+    this.user = JSON.parse(sessionStorage.getItem("user"));
     this.getList();
-    this.getProducClassList();
   },
   methods: {
     goToDetail(operation, id) {
       this.$router.push({
-        path: "/productInfo/productDetail",
+        path: "/doneeInfoC/doneeDetailC",
         query: { operation: operation, id: id }
       });
     },
-    getProducClassList() {
-      GetProducClassList({ keyName: "" }).then(res => {
-        this.productClassList = res.data.datas[0].content;
-      });
-    },
+
     //获取列表
     getList() {
       const that = this;
 
       const para = {
         ...that.listQuery,
-        productClassIds:
-            that.listQuery.productClassIds !== "0"
-                ? that.listQuery.productClassIds
-                : "",
         page: that.listQuery.page - 1
       };
       that.listLoading = true;
-      GetProductList(para).then(res => {
+      GetRecipientList(para).then(res => {
         that.total = res.data.datas[0].totalElements;
         that.list = res.data.datas[0].content;
-        that.list.map(item => {
-          item.productPic = globalVar.imgPath + item.productPic;
-        });
         that.listLoading = false;
       });
     },
-    handleCancel(id) {
-      CancelProduct({ id }).then(res => {
+    handleApprove(id, bool = "confirm_fail") {
+      const para = {
+        approverId: this.user.id,
+        auditStatus: bool
+      };
+      AddRecipient(id, para).then(res => {
         if (res.data.code === "000") {
           this.$message({
-            message: "下架成功",
+            message: "审核成功",
             type: "success"
           });
-          this.formVisible = false;
-          this.getList();
-        } else {
-          this.$message({
-            message: res.data.msg,
-            type: "error"
-          });
-        }
-      });
-    },
-    handelRelease(id) {
-      ReleaseProduct({ id }).then(res => {
-        if (res.data.code === "000") {
-          this.$message({
-            message: "发布成功",
-            type: "success"
-          });
-          this.formVisible = false;
           this.getList();
         } else {
           this.$message({
@@ -269,25 +241,13 @@ export default {
       });
     },
     handleDelete(id) {
-      DeleteProduct(id).then(res => {
-        if (res.data.code === "000") {
-          this.$message({
-            message: "删除成功",
-            type: "success"
-          });
-          this.formVisible = false;
-          this.getList();
-        } else {
-          this.$message({
-            message: res.data.msg,
-            type: "error"
-          });
-        }
+      DeleteRecipient(id).then(res => {
+        this.$message({
+          message: "删除成功",
+          type: "success"
+        });
+        this.getList();
       });
-    },
-    handleClick(res) {
-      this.listQuery.productClassIds = res.name;
-      this.getList();
     }
   }
 };

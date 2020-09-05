@@ -39,14 +39,14 @@
 </template>
 
 <script>
-import { loginRequest, loginRequestPost } from "@/api/login";
+import { loginRequestPost } from "@/api/login";
 
 export default {
   data() {
     return {
       logining: false,
       loginFrom: {
-        account: "18818299304",
+        account: "13509447983",
         checkPass: "123456"
       },
       loginRules: {
@@ -56,67 +56,40 @@ export default {
     };
   },
   methods: {
-    makeBaseAuth({ username, password }) {
-      const tok = username + ":" + password;
-      const hash = tok;
-      return "Basic " + hash;
-    },
+
+
     handleSubmit() {
       const _this = this;
       _this.$refs.loginFrom.validate(valid => {
         if (valid) {
           _this.logining = true;
           const loginParams = {
+            password: _this.loginFrom.checkPass,
             username: _this.loginFrom.account,
-            password: _this.loginFrom.checkPass
           };
-
           loginRequestPost(loginParams)
-            .then(res => {
-              loginRequest()
-                .then(data => {
-                  if (data.data.code === "000") {
-                    const result = data.data.datas[0];
-                    let roleType = result.roleType;
-                    // const roleType = _this.loginFrom.account;
-                    sessionStorage.setItem("user", JSON.stringify(result));
-                    
-                    // Todo: 修改用户角色权限
-                    _this.$router.push({ path: "/donorInfoP" });
-
-                    // if (roleType === "superAdmin") {
-                    // } else {
-                    //   _this.logining = false;
-                    //   _this.$message({
-                    //     message: "登录失败",
-                    //     type: "error"
-                    //   });
-                    // }
-                  } else {
-                    _this.$message({
-                      message: data.data.msg,
-                      type: "error"
-                    });
-                  }
-                })
-                .catch(err => {
-                  _this.logining = false;
+              .then(res => {
+                console.log(res);
+                console.log(res.status);
+                const result = res;
+                if (res.status === 200) {
                   _this.$message({
-                    message: err.response.data.msg,
-                    type: "error"
-                  });
-                });
-            })
-            .catch(err => {
-              _this.logining = false;
-              _this.$message({
-                message: err.response.data.msg,
-                type: "error"
+                    type: 'success',
+                    message: "成功了！",
+                  })
+                  sessionStorage.setItem("user", JSON.stringify(result));
+                  _this.$router.push({path: '/donorInfoP'})
+
+
+                }
+                 else {
+                  _this.$message({
+                        type: 'error',
+                        message: "登录失败"
+                      }
+                  );
+                }
               });
-            });
-        } else {
-          console.log("error submit!!");
-          return false;
         }
       });
     }
@@ -134,13 +107,13 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import "../styles/vars.scss";
+@import "../style/vars.scss";
 
 .set-bg {
   position: fixed;
   width: 100%;
   height: 100%;
-  background-image: url("../assets/img/login.jpg");
+  background-image: url("../assets/login.jpg");
   color: #393e46;
   background-size: cover;
 

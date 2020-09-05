@@ -3,185 +3,115 @@
     <el-card class="box-card">
       <el-form
           label-position="left"
-          label-width="120px"
+          label-width="80px"
           :rules="formRules"
           ref="form"
           :model="form"
       >
-        <el-row
-            :gutter="20"
-            v-if="operation !== 'add'"
-        >
+        <template v-if="operation != 'add'">
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item
+                  label="账号"
+                  prop="accountId"
+              >
+                <el-input
+                    v-model="form.accountId"
+                    disabled
+                ></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </template>
+
+
+        <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item
-                label="产品状态"
-                prop="officeAddressProvince"
+                label="单位名称"
+                prop="companyName"
             >
-              <el-select
-                  v-model="form.officeAddressProvince"
-                  placeholder="产品状态"
-                  disabled
-              >
-                <el-option
-                    v-for="item in productClassList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                ></el-option>
-              </el-select>
+              <el-input
+                  v-model="form.companyName"
+                  placeholder="单位名称"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item
-                label="产品销量"
-                prop="pioNum"
+                label="地址信息"
+                prop="deliveryAddressInfo"
             >
               <el-input
-                  v-model="form.pioNum"
-                  placeholder="产品销量"
-                  disabled
-              >
-              </el-input>
+                  v-model="form.deliveryAddressInfo"
+                  placeholder="地址信息"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item
+                label="单位法人"
+                prop="LegalPersonName"
+            >
+              <el-input
+                  v-model="form.LegalPersonName"
+                  placeholder="单位法人"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item
+                label="法人联系电话"
+                prop="LegalPersonTel"
+            >
+              <el-input
+                  v-model="form.LegalPersonTel"
+                  placeholder="法人联系电话"
+              ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item
-                label="产品编号"
-                prop="productId"
+                label="单位联系人"
+                prop="contact"
             >
               <el-input
-                  v-model="form.productId"
-                  :disabled="operation !== 'add'"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item
-                label="产品名称"
-                prop="productName"
-            >
-              <el-input
-                  v-model="form.productName"
-                  placeholder="产品名称"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item
-                label="单价"
-                prop="productPrice"
-            >
-              <el-input
-                  v-model="form.productPrice"
-                  placeholder="单价"
-              >
-                <template slot="append">元</template></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="16">
-            <el-form-item
-                label="产品介绍"
-                prop="productDes"
-            >
-              <el-input
-                  type="textarea"
-                  placeholder="请输入内容"
-                  v-model="form.productDes"
-                  maxlength="100"
-                  show-word-limit
-                  :autosize="{ minRows: 3}"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item
-                label="产品缩略图"
-                prop="productPic"
-            >
-              <el-upload
-                  class="avatar-uploader"
-                  action="/api/file"
-                  :show-file-list="false"
-                  :on-success="productPicSuccess"
-                  v-model="photo"
-              >
-                <el-image
-                    v-if="photo"
-                    style="width: 178px; height: 178px"
-                    :src="photo"
-                    fit="fill"
-                ></el-image>
-                <i
-                    v-else
-                    class="el-icon-plus avatar-uploader-icon"
-                ></i>
-              </el-upload>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <el-form-item
-                label="所属商家"
-                prop="businessId"
-            >
-              <el-select
-                  v-model="form.businessId"
-                  placeholder="所属商家"
-              >
-                <el-option
-                    v-for="item in businessList"
-                    :key="item.id"
-                    :label="item.businessName"
-                    :value="item.id"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item
-                label="生产厂家"
-                prop="producerName"
-            >
-              <el-input
-                  v-model="form.producerName"
-                  placeholder="生产厂家"
+                  v-model="form.contact"
+                  placeholder="单位联系人"
               >
               </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item
-                label="品牌"
-                prop="productBrand"
+                label="联系人电话"
+                prop="contactTel"
             >
               <el-input
-                  v-model="form.productBrand"
-                  placeholder="品牌"
+                  v-model="form.contactTel"
+                  placeholder="联系人电话"
               >
               </el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
-          <el-form-item
-              label="产品类别"
-              prop="status"
-          >
-            <el-radio-group v-model="form.productClassId">
-              <el-radio
-                  v-for="item in productClassList"
-                  :key="item.id"
-                  :label="item.id"
+          <el-col :span="8">
+            <el-form-item
+                label="受捐总数"
+                prop="donationSum"
+            >
+              <el-input
+                  v-model="form.totalNum"
+                  placeholder="受捐总数"
               >
-                {{ item.className }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
+              </el-input>
+            </el-form-item>
+          </el-col>
         </el-row>
       </el-form>
       <el-button
@@ -206,16 +136,16 @@
 </template>
 
 <script>
-import { AddProduct, EditProduct, GetProductById } from "@/api/product";
+import { UpdateRecipient, GetRecipientList, AddRecipient } from "@/api/recipient";
+
 import { checkPhone, checkNum } from "@/utils/index";
-import { GetProducClassList } from "@/api/class";
-import { GetBusinessList } from "@/api/business";
-import globalVar from "@/utils/globalVar.js";
+import { parseTime } from "@/utils/index";
 
 export default {
   data() {
     return {
       form: {
+        accountId:"",
         companyName: "",
         addressId: "",
         deliveryAddressInfo: "",
@@ -223,6 +153,7 @@ export default {
         LegalPersonTel: "",
         contact: "",
         contactTel: "",
+        totalNum:""
       },
       formatRole: "",
       formRules: {
@@ -246,47 +177,25 @@ export default {
           { required: true, message: "请输入联系人姓名", trigger: "blur" }
           // { validator: checkChinese, trigger: "blur" }
         ],
+        donationSum	: [
+          { required: true, message: "请输入捐赠总数", trigger: "blur" }
+          // { validator: checkChinese, trigger: "blur" }
+        ],
         contactTel: [
           { required: true, message: "请输入联系电话", trigger: "blur" },
           { validator: checkPhone, trigger: "blur" }
-        ],
-        productClassId: [{ required: true, message: "请选择捐赠物品类别", trigger: "blur" }
-        ],
-        donorStatus: [{ required: true, message: "是否为捐助者", trigger: "blur" }],
-        doneeStatus: [{ required: true, message: "是否为受捐者", trigger: "blur" }]},
-      donorStatusList:[
-        {
-          label: "是，本单位是捐助者",
-          value: "isDonorCompany"
-        },
-        {
-          label: "否，本单位不是捐助者",
-          value: "isNotDonorCompany"
-        },
-      ],
-      doneeStatusList: [
-        {
-          label: "是，本单位是收捐者",
-          value: "isDonorCompany"
-        },
-        {
-          label: "否，本单位不是收捐者",
-          value: "isNotDonorCompany"
-        },
-      ],
+        ]},
+      operation: "",
       auditStatusList: {
         not_revienwed: "未审核",
         confirm_success: "通过",
-        confirm_fail: "未通过"},
-      operation: "",
-      productClassList: [],
+        confirm_fail: "未通过"
+      }
     };
   },
   mounted() {
     this.operation = this.$route.query.operation;
     this.id = this.$route.query.id;
-    this.getProducClassList();
-    this.getBusinessList();
 
     if (this.operation === "add") {
     } else if (this.operation === "detail") {
@@ -297,37 +206,33 @@ export default {
     }
   },
   methods: {
+    parseTime(val) {
+      return parseTime(val);
+    },
     backTo() {
       this.$router.push({
         path: "/doneeInfoC"
       });
     },
-    getProducClassList() {
-      GetProducClassList({ keyName: "" }).then(res => {
-        this.productClassList = res.data.datas[0].content;
-      });
-    },
-    getBusinessList() {
-      GetBusinessList().then(res => {
-        this.businessList = res.data.datas[0].content;
-      });
-    },
+
     getData(id) {
       const that = this;
 
-      GetProductById(id).then(res => {
-        that.form = { ...res.data.datas[0] };
-        that.photo = globalVar.imgPath + that.form.productPic;
+      GetRecipientList(id).then(res => {
+        that.form = res.data.datas[0];
       });
     },
-    productPicSuccess(res, file) {
-      this.photo = URL.createObjectURL(file.raw);
-      this.form.productPic = res.msg;
-    },
     saveData() {
+      let para = {
+        companyInfo: this.form,
+        loginName: "",
+        password: "123456",
+      };
+      para.loginName = this.form.contactTel;
+
       this.$refs.form.validate(valid => {
         if (valid) {
-          AddProduct(this.form).then(res => {
+          AddRecipient(para).then(res => {
             if (res.data.code === "000") {
               this.$message({
                 message: "添加成功",
@@ -357,7 +262,7 @@ export default {
       };
       this.$refs.form.validate(valid => {
         if (valid) {
-          EditProduct(para).then(res => {
+          UpdateRecipient(para).then(res => {
             if (res.data.code === "000") {
               this.$message({
                 message: "修改成功",

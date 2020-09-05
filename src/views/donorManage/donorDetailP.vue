@@ -21,46 +21,40 @@
                 ></el-input>
               </el-form-item>
             </el-col>
-
-
-
             <el-col :span="8">
               <el-form-item
-                  label="会员等级"
-                  prop="memberLevel"
+                  label="捐赠总数"
+                  prop="donationSum"
               >
                 <el-input
-                    v-model="form.memberLevel"
-                    placeholder="会员等级"
+                    v-model="form.donationSum"
                     disabled
                 ></el-input>
               </el-form-item>
             </el-col>
           </el-row>
+
           <el-row :gutter="20">
             <el-col :span="8">
               <el-form-item
-                  label="账户余额"
-                  prop="accountBalance"
+                  label="用户邮箱"
+                  prop="email"
               >
                 <el-input
-                    v-model="form.accountBalance"
-                    placeholder="账户余额"
-                    disabled
+                    v-model="form.email"
+                    placeholder="用户邮箱"
                 >
-                  <template slot="append">元</template>
                 </el-input>
               </el-form-item>
             </el-col>
             <el-col :span="8">
               <el-form-item
-                  label="活跃度"
-                  prop="activity"
+                  label="年龄"
+                  prop="personAge"
               >
                 <el-input
-                    v-model="form.activity"
-                    placeholder="活跃度"
-                    disabled
+                    v-model="form.personAge"
+                    placeholder="年龄"
                 >
                 </el-input>
               </el-form-item>
@@ -71,22 +65,11 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item
-                label="客户姓名"
-                prop="customerName"
-            >
-              <el-input
-                  v-model="form.customerName"
-                  placeholder="客户姓名"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item
                 label="用户名"
-                prop="userName"
+                prop="personName"
             >
               <el-input
-                  v-model="form.userName"
+                  v-model="form.personName"
                   placeholder="用户名"
               ></el-input>
             </el-form-item>
@@ -94,10 +77,10 @@
           <el-col :span="8">
             <el-form-item
                 label="联系电话"
-                prop="customerTel"
+                prop="phoneNum"
             >
               <el-input
-                  v-model="form.customerTel"
+                  v-model="form.phoneNum"
                   placeholder="联系电话"
               ></el-input>
             </el-form-item>
@@ -131,6 +114,7 @@
                       v-model="form.customerCity"
                       placeholder="市"
                   >
+
                     <el-option
                         v-for="item in cityList"
                         :key="item.id"
@@ -143,49 +127,15 @@
             </template>
 
             <el-col :span="12">
-              <el-form-item prop="customerAddress">
+              <el-form-item prop="deliveryAddressInfo">
                 <el-input
-                    v-model="form.customerAddress"
+                    v-model="form.deliveryAddressInfo"
                     placeholder="详细地址"
                 >
                 </el-input>
               </el-form-item>
             </el-col>
           </el-form-item>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item
-                label="个人描述（选填）"
-                label-width="140px"
-                prop="personalDescription"
-            >
-              <el-input
-                  type="textarea"
-                  placeholder="请输入内容"
-                  v-model="form.personalDescription"
-                  maxlength="100"
-                  show-word-limit
-                  :autosize="{ minRows: 3}"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item
-                label="备注"
-                label-width="80px"
-                prop="des"
-            >
-              <el-input
-                  type="textarea"
-                  placeholder="请输入内容"
-                  v-model="form.des"
-                  maxlength="100"
-                  show-word-limit
-                  :autosize="{ minRows: 3}"
-              ></el-input>
-            </el-form-item>
-          </el-col>
         </el-row>
       </el-form>
       <el-button
@@ -210,7 +160,7 @@
 </template>
 
 <script>
-import { EditCustomer, GetCustomerById, AddCustomer } from "@/api/fileManage";
+import { UpdateDonor, GetDonor, AddDonor } from "@/api/donor";
 import { checkPhone, checkNum } from "@/utils/index";
 const {
   data,
@@ -230,7 +180,10 @@ export default {
         deliveryAddressInfo: "",
         personAge: "",
         phoneNum: "",
-        email: ""
+        donationSum: "",
+        email: "",
+        customerProvince: "",
+        customerCity: ""
       },
       formRules: {
         personName: [
@@ -241,17 +194,26 @@ export default {
           { required: true, message: "请输入性别", trigger: "blur" }
         ],
         deliveryAddressInfo: [
-          { required: true, message: "请输入联系地址", trigger: "blur" },
-          { validator: checkPhone, trigger: "blur" }
+          { required: true, message: "请输入联系地址", trigger: "blur" }
         ],
         personAge: [
           { required: true, message: "请输入年龄", trigger: "blur" }
         ],
+        donationSum: [
+          { required: true, message: "请输入捐赠总数", trigger: "blur" }
+        ],
         phoneNum: [
-          { required: true, message: "请输入联系电话", trigger: "blur" }
+          { required: true, message: "请输入联系电话", trigger: "blur" },
+          { validator: checkPhone, trigger: "blur" }
         ],
         email: [
           { required: true, message: "请输入联系邮箱", trigger: "blur" }
+        ],
+        customerProvince: [
+          { required: true, message: "请选择省份", trigger: "blur" }
+        ],
+        customerCity: [
+          { required: true, message: "请选择城市", trigger: "blur" }
         ]
       },
       operation: "",
@@ -298,15 +260,15 @@ export default {
     getData(id) {
       const that = this;
 
-      GetCustomerById(id).then(res => {
+      GetDonor(id).then(res => {
         that.form = res.data.datas[0];
       });
     },
     saveData() {
-      this.form.customerAddress =
+      this.form.deliveryAddressInfo =
           this.form.customerProvince +
           this.form.customerCity +
-          this.form.customerAddress;
+          this.form.deliveryAddressInfo;
       this.form.roleType = "person";
       let para = {
         customerInfo: this.form,
@@ -314,11 +276,11 @@ export default {
         password: "123456",
         roleType: "person"
       };
-      para.loginName = this.form.userName;
+      para.loginName = this.form.phoneNum;
 
       this.$refs.form.validate(valid => {
         if (valid) {
-          AddCustomer(para).then(res => {
+          AddDonor(para).then(res => {
             if (res.data.code === "000") {
               this.$message({
                 message: "添加成功",
@@ -348,7 +310,7 @@ export default {
       };
       this.$refs.form.validate(valid => {
         if (valid) {
-          EditCustomer(para).then(res => {
+          UpdateDonor(para).then(res => {
             if (res.data.code === "000") {
               this.$message({
                 message: "修改成功",

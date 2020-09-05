@@ -1,5 +1,6 @@
 <template>
   <div>
-    test
+     数据统计
   </div>
 </template>
+

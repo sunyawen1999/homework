@@ -3,10 +3,13 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import ElementUI from 'element-ui'
-import './styles/element-variables.scss'
+import './style/element-variables.scss'
 import axios from 'axios'
 import { parseTime } from "@/utils/index";
 import globalVar from "@/utils/globalVar.js";
+
+axios.defaults.baseURL='http://118.178.224.152:8080';
+
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
@@ -28,89 +31,48 @@ Vue.filter("formatDate", function (value) {
 
 Vue.filter("formatRoleType", function (value) {
   if (!value) return "";
-  return value == "customer"
+  return value === "customer"
       ? "用户"
-      : value == "expert"
-          ? "专家"
-          : value == "helper"
-              ? "助老员"
-              : value == "nurse"
-                  ? "护理员"
-                  : value == "shopManager"
-                      ? "店长"
-                      : value == "administration"
-                          ? "行政"
-                          : value == "hr"
-                              ? "hr"
-                              : value == "finance"
-                                  ? "财务"
-                                  : value == "outreach"
-                                      ? "外联"
-                                      : value == "after_sales"
-                                          ? "售后"
-                                          : value;
+      : value === "superAdmin"
+          ? "管理者"
+          : value;
 });
 
-Vue.filter("formatWorkingStatus", function (value) {
+Vue.filter("deliveryStatus", function (value) {
   if (!value) return "";
-  return value == "busy"
-      ? "忙碌"
-      : value == "resignation"
-          ? "离职"
-          : value == "free"
-              ? "空闲"
+  return value === "cancel"
+      ? "取消"
+      : value === "received"
+          ? "已收到"
+          : value === "delivered"
+              ? "已发出"
+              : value === "un_delivered"
+                  ? "未发出"
               : value;
 });
 
 Vue.filter("formatAuditStatus", function (value) {
   if (!value) return "";
-  return value == "not_revienwed"
+  return value === "not_revienwed"
       ? "未审核"
-      : value == "confirm_success"
+      : value === "confirm_success"
           ? "通过"
-          : value == "confirm_fail"
+          : value === "confirm_fail"
               ? "未通过"
               : value;
 });
 
-Vue.filter("formatProductStatus", function (value) {
-  if (!value) return "";
-  return value == "unrelease"
-      ? "未发布"
-      : value == "cancel"
-          ? "已取消"
-          : value == "on_shelf"
-              ? "已上架"
-              : value == "off_shelf"
-                  ? "已下架"
-                  : value;
-});
 
-Vue.filter("formatLogisticsStatus", function (value) {
+Vue.filter("itemTypre", function (value) {
   if (!value) return "";
-  return value == "cancel"
-      ? "已取消"
-      : value == "received"
-          ? "已收货"
-          : value == "delivered"
-              ? "已发货"
-              : value == "un_delivered"
-                  ? "未发货"
-                  : value == "paid"
-                      ? "已付款"
-                      : value == "un_paid"
-                          ? "未付款"
-                          : value;
-});
-
-Vue.filter("formatComplaintOrderStatus", function (value) {
-  if (!value) return "";
-  return value == "on_processing"
-      ? "处理中"
-      : value == "been_proccessed"
-          ? "已处理"
-          : value == "unprocessed"
-              ? "未处理"
+  return value === "food"
+      ? "食品"
+      : value === "medical_supplies"
+          ? "药品"
+          : value === "daily_necessities"
+              ? "日用品"
+              : value === "clothing"
+                  ? "衣物"
               : value;
 });
 
@@ -134,7 +96,7 @@ axios.interceptors.response.use(
       } else {
         if (
             error.config.url !== "api/users/me" &&
-            error.response.data.code !== "401"
+            error.response.data !== "401"
         ) {
           // const msg = `Error: ${error.response.data.error || ''}, Message: ${error.response.data.message || ''} 请联系管理员`;
           // MessageBox.alert(msg, '出错了', {
